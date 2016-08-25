@@ -31,6 +31,25 @@ RUN adduser -u $(id -u $USER) -Ds /bin/bash $CONTAINER_USER
 COPY apk-install.sh /usr/local/bin/apk-install.sh
 RUN chmod u+x /usr/local/bin/apk-install.sh
 RUN apk-install.sh
+
+COPY info.php /var/www/info.php
+
+RUN which php && php --version
+RUN which httpd && httpd -v
+
+RUN curl -sS https://getcomposer.org/installer | \
+			php -- --install-dir=/usr/local/bin --filename=composer
+RUN chmod -R ugo=x /usr/local/bin
+RUN which composer && composer --version
+
+RUN chown -R ${CONTAINER_USER}:apache /var/www/ /etc/apache2/
+
+USER $CONTAINER_USER
+VOLUME ["/var/www"]
+EXPOSE 80
+
+# CMD ["httpd", "-D", "FOREGROUND"]
+CMD sh -c 'kill -STOP \$$'
 EOF
 
 cat <<EOF > $TEMP_DIR/apk-install.sh
@@ -39,14 +58,33 @@ set -eo pipefail
 
 apk update
 apk add \
-			php-apache2 \
+			bash \
+			apache2 \
+			php5-apache2 \
 			curl \
-			php-cli \
-			php-json \
-			php-phar \
-			php-openssl
+			php5-cli \
+			php5-json \
+			php5-phar \
+			php5-openssl \
 		&& echo 'End of package(s) installation.'
 
 echo 'Cleaning up apks'
 rm -rf '/var/cache/apk/*'
+
+sed -ri "s/(User[[:space:]]+)apache/\1${CONTAINER_USER}/" /etc/apache2/httpd.conf
+mkdir -p /run/apache2
 EOF
+
+cat <<EOF > $TEMP_DIR/info.php
+
+<?php phpinfo(); ?>
+
+EOF
+
+
+docker build \
+			 --no-cache=false \
+			 --tag="${PROJECT_NAME}/apache-php:latest" $TEMP_DIR
+docker tag \
+			 "${PROJECT_NAME}/apache-php:latest" \
+			 "${PROJECT_NAME}/apache-php:$(date +%s)"
