@@ -61,14 +61,16 @@ set -eo pipefail
 
 apk update
 apk add \
-			bash \
 			apache2 \
-			php5-apache2 \
+			bash \
 			curl \
+			php5-apache2 \
 			php5-cli \
+			php5-curl \
 			php5-json \
-			php5-phar \
 			php5-openssl \
+			php5-phar \
+			php5-soap \
 		&& echo 'End of package(s) installation.'
 
 echo 'Cleaning up apks'
