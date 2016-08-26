@@ -28,17 +28,17 @@ docker run \
 			 --name="${DEV_USER}-mysql-dbms" \
 			 --env="DATABASE_USER=${DATABASE_USER}" \
 			 --env="DATABASE_PASS=${DATABASE_PASS}" \
-			 "${PROJECT_NAME}/mysql-dbms:latest"
+			 "${PROJECT_NAME}/mysql-dbms-${MYSQL_VERSION}:latest"
 
 docker run \
 			 --detach=true \
 			 --name="${DEV_USER}-apache-php-web" \
 			 --publish='1000:80' \
-			 --volume="$(dirname $(pwd))/src:/var/www/projects" \
+			 --volume="$(dirname $(pwd))/src:/var/www/localhost/htdocs/" \
 			 "${PROJECT_NAME}/apache-php:latest"
 
 docker run \
 			 --detach=true \
 			 --name="${DEV_USER}-node-assets" \
-			 --volume="$(dirname $(pwd))/src:/var/www/projects" \
+			 --volume="$(dirname $(pwd))/src:/var/www/localhost/htdocs/" \
 			 "${PROJECT_NAME}/node-${NODE_VERSION}:latest"

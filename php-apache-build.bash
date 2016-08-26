@@ -32,20 +32,23 @@ COPY apk-install.sh /usr/local/bin/apk-install.sh
 RUN chmod u+x /usr/local/bin/apk-install.sh
 RUN apk-install.sh
 
-COPY info.php /var/www/localhost/htdocs/info.php
+RUN mkdir -pv /tmp/php
+COPY info.php /tmp/php/info.php
 
 RUN which php && php --version
 RUN which httpd && httpd -v
 
 RUN curl -sS https://getcomposer.org/installer | \
 			php -- --install-dir=/usr/local/bin --filename=composer
-RUN chmod -R ugo=x /usr/local/bin
+RUN chmod -R ugo=rx /usr/local/bin/*
 RUN which composer && composer --version
 
 RUN chown -R ${CONTAINER_USER}:apache /var/www/ /etc/apache2/ /var/log/apache2/
 
 USER $CONTAINER_USER
-VOLUME ["/var/www"]
+WORKDIR /var/www/localhost/htdocs
+
+VOLUME ["/var/www/localhost/htdocs"]
 EXPOSE 80
 
 # CMD ["httpd", "-D", "FOREGROUND"]

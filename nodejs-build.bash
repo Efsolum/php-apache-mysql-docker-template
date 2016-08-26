@@ -75,7 +75,7 @@ RUN cat bash-profile >> /etc/profile
 RUN chown -R root:$CONTAINER_USER \$NPM_CONFIG_PREFIX
 
 USER $CONTAINER_USER
-WORKDIR /var/www/projects
+WORKDIR /var/www/localhost/htdocs
 
 VOLUME ["/var/www/projects"]
 CMD sh -c 'kill -STOP \$$'
